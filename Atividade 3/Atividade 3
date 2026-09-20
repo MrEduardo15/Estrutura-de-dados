@@ -1,0 +1,163 @@
+# Representacao do No da pilha
+class No:
+    def __init__(self, disco: int):
+        self.disco = disco
+        self.proximo = None
+
+
+# Estrutura da Pilha Dinamica
+class Pilha:
+    def __init__(self):
+        self.topo_no = None
+        self.quantidade = 0
+
+    # Operacao: inicializar_pilha
+    def inicializar_pilha(self):
+        self.topo_no = None
+        self.quantidade = 0
+
+    # Operacao: empilhar
+    def empilhar(self, disco: int):
+        novo_no = No(disco)
+        novo_no.proximo = self.topo_no
+        self.topo_no = novo_no
+        self.quantidade += 1
+
+    # Operacao: desempilhar
+    def desempilhar(self) -> int:
+        if self.topo_no is None:
+            return None
+        
+        disco_removido = self.topo_no.disco
+        self.topo_no = self.topo_no.proximo
+        self.quantidade -= 1
+        return disco_removido
+
+    # Operacao: topo
+    def topo(self) -> int:
+        if self.topo_no is None:
+            return None
+        return self.topo_no.disco
+
+    # Operacao: imprimir
+    def imprimir(self):
+        elementos = []
+        atual = self.topo_no
+        while atual is not None:
+            elementos.append(atual.disco)
+            atual = atual.proximo
+        
+        # Inverte para exibir da base para o topo
+        elementos.reverse()
+        print(elementos)
+
+
+# Estrutura do Jogo Torre de Hanoi
+class TorreDeHanoi:
+    def __init__(self, total_discos: int = 4):
+        self.total_discos = total_discos
+        self.torres = {
+            1: Pilha(),
+            2: Pilha(),
+            3: Pilha()
+        }
+        self.movimentos = 0
+        self.iniciar_partida()
+
+    def iniciar_partida(self):
+        for t in self.torres.values():
+            t.inicializar_pilha()
+
+        # Empilha os discos na primeira torre (do maior para o menor)
+        for d in range(self.total_discos, 0, -1):
+            self.torres[1].empilhar(d)
+
+        self.movimentos = 0
+
+    def visualizar_estado(self):
+        print(f"\nMovimentos realizados: {self.movimentos}")
+        for i in range(1, 4):
+            print(f"Torre {i}: ", end="")
+            self.torres[i].imprimir()
+        print()
+
+    def mover_disco(self, origem: int, destino: int) -> bool:
+        if origem not in [1, 2, 3] or destino not in [1, 2, 3]:
+            print("Erro: Torre invalida. Escolha entre 1, 2 ou 3.")
+            return False
+
+        if origem == destino:
+            print("Erro: A torre de origem e destino nao podem ser iguais.")
+            return False
+
+        pilha_origem = self.torres[origem]
+        pilha_destino = self.torres[destino]
+
+        # Validacao: origem vazia
+        if pilha_origem.topo() is None:
+            print("Erro: A torre de origem esta vazia.")
+            return False
+
+        disco_origem = pilha_origem.topo()
+        disco_destino = pilha_destino.topo()
+
+        # Validacao: disco maior sobre menor
+        if disco_destino is not None and disco_origem > disco_destino:
+            print("Erro: Nao e permitido colocar um disco maior sobre um menor.")
+            return False
+
+        # Realiza o movimento
+        disco = pilha_origem.desempilhar()
+        pilha_destino.empilhar(disco)
+        self.movimentos += 1
+        return True
+
+    def verificar_vitoria(self) -> bool:
+        return self.torres[3].quantidade == self.total_discos
+
+
+def menu():
+    jogo = TorreDeHanoi(total_discos=4)
+
+    while True:
+        jogo.visualizar_estado()
+
+        print("Opcoes:")
+        print("1 - Realizar movimento")
+        print("2 - Reiniciar partida")
+        print("0 - Encerrar jogo")
+        
+        opcao = input("Escolha uma opcao: ")
+
+        if opcao == "1":
+            try:
+                origem = int(input("Torre de origem (1-3): "))
+                destino = int(input("Torre de destino (1-3): "))
+                
+                if jogo.mover_disco(origem, destino):
+                    if jogo.verificar_vitoria():
+                        jogo.visualizar_estado()
+                        print("Parabens! Voce venceu o jogo!")
+                        print(f"Total de movimentos: {jogo.movimentos}")
+                        
+                        novo = input("Deseja jogar novamente? (s/n): ")
+                        if novo.lower() == 's':
+                            jogo.iniciar_partida()
+                        else:
+                            break
+            except ValueError:
+                print("Erro: Digite apenas numeros inteiros.")
+
+        elif opcao == "2":
+            jogo.iniciar_partida()
+            print("Partida reiniciada.")
+
+        elif opcao == "0":
+            print("Jogo encerrado.")
+            break
+        else:
+            print("Opcao invalida.")
+
+
+if __name__ == "__main__":
+    menu()
