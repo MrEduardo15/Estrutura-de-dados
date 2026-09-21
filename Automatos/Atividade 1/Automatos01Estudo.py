@@ -9,7 +9,7 @@ class Automato:
         caminho = [atual]
 
         for char in str(texto):
-            # Se a transição não existir, rejeita imediatamente
+            # Se a transição não existir, quebra o loop direto
             if (atual, char) not in self.regras:
                 return False, caminho
             
@@ -28,22 +28,9 @@ regras_transicao = {
 
 dfa = Automato(regras_transicao, 'q1', ['q2'])
 
+# Testes rápidos
+testes = ["1", "001", "10", "100", "1101", "00", "1000"]
 
-# Laço para ler múltiplas entradas do corretor automático sem 'sys'
-try:
-    while True:
-        # Lê uma linha inteira da entrada (ex: "1010 0101")
-        linha = input()
-        
-        # Divide a linha em palavras separadas por espaço
-        palavras = linha.split()
-        
-        # Processa cada palavra individualmente
-        for palavra in palavras:
-            if dfa.testar(palavra):
-                print("aceita")
-            else:
-                print("rejeita")
-except EOFError:
-    # O corretor automático terminou de enviar todas as entradas
-    pass
+for t in testes:
+    ok, passos = dfa.testar(t)
+    print(f"{t} -> {'OK' if ok else 'X'} | Rota: {passos}")
